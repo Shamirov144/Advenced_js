@@ -30,10 +30,26 @@ const changeModalState = state => {
   function bindActionToElems(event, elem, prop) {
     elem.forEach((item, i) => {
       item.addEventListener(event, () => {
-        if (elem.length > 1) {
-          state[prop] = i;
-        } else {
-          state[prop] = item.value;
+        switch (item.nodeName) {
+          case 'SPAN':
+            state[prop] = i;
+            break;
+          case 'INPUT':
+            if (item.getAttribute('type') === 'checkbox') {
+              i === 0 ? state[prop] = "Cold" : state[prop] = "Warm";
+              elem.forEach((item, j) => {
+                item.checked = false;
+                if (i == j) {
+                  item.checked = true;
+                }
+              });
+            } else {
+              state[prop] = item.value;
+            }
+            break;
+          case 'SELECT':
+            state[prop] = item.value;
+            break;
         }
         console.log(state);
       });
@@ -80,7 +96,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _checkNumImputs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./checkNumImputs */ "./src/js/modules/checkNumImputs.js");
 
-const forms = () => {
+const forms = state => {
   const form = document.querySelectorAll('form'),
     inputs = document.querySelectorAll('input');
   const message = {
@@ -108,6 +124,11 @@ const forms = () => {
     statusMessage.classList.add('status');
     item.appendChild(statusMessage);
     const formData = new FormData(item);
+    if (item.getAttribute('data-calc') === "end") {
+      Object.entries(state).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+    }
     postData('assets/server.php', formData).then(res => {
       console.log(res);
       statusMessage.textContent = message.success;
@@ -14170,7 +14191,7 @@ window.addEventListener('DOMContentLoaded', () => {
   (0,_modules_tabs__WEBPACK_IMPORTED_MODULE_2__["default"])('.decoration_slider', '.no_click', '.decoration_content > div > div', 'after_click');
   (0,_modules_tabs__WEBPACK_IMPORTED_MODULE_2__["default"])('.balcon_icons', '.balcon_icons_img', '.big_img > img', 'do_image_more', 'inline');
   (0,_modules_modals__WEBPACK_IMPORTED_MODULE_1__["default"])();
-  (0,_modules_forms__WEBPACK_IMPORTED_MODULE_3__["default"])();
+  (0,_modules_forms__WEBPACK_IMPORTED_MODULE_3__["default"])(modalState);
 });
 })();
 
